@@ -108,14 +108,16 @@ Use Postman, Insomnia, or any REST client to test your endpoints.
 
 ---
 
-## 📦 Folder Structure
+## 📦 Folde```r Structure
 
+```bash
 .
 ├── src # Laravel application code (app, routes, etc.)
 ├── docker-compose.yml
 ├── nginx/
 │ └── default.conf
 └── .env
+```
 
 ---
 
@@ -139,13 +141,3 @@ Use Postman, Insomnia, or any REST client to test your endpoints.
 - Merge only fully tested features to `main`.
 
 ---
-
-## 🤝 Contributing
-
-Pull requests are welcome! For major changes, open an issue to discuss the idea first.
-
----
-
-## 📄 License
-
-This project is open-source and available under the MIT License.
