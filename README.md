@@ -82,14 +82,6 @@ Wait until all containers (app, nginx, mysql) are up and running.
 
 ---
 
-### 4. Install Laravel Dependencies
-
-```bash
-docker exec -it app composer install
-```
-
----
-
 ### 5. Generate App Key
 
 ```bash
