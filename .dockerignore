@@ -1,0 +1,34 @@
+# Laravel specific
+vendor
+node_modules
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+docker-compose.override.yml
+docker-compose.dev.yml
+
+# Logs
+storage/logs
+*.log
+
+# Cache
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+
+# npm/yarn cache
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# IDEs
+.idea
+.vscode
