@@ -38,6 +38,7 @@ class UserServiceTest extends TestCase
 
         $user = $service->create($this->userData);
 
+
         $this->assertInstanceOf(User::class, $user);
         $this->assertEquals('test@example.com', $user->email);
         $this->assertTrue(Hash::check('test123', $user->password));
