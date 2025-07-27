@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->references("id")->on("products")->constrained()->onDelete('cascade');
             $table->enum('color', ['red', 'green', 'blue', 'black', 'white', 'brown', 'orange'])->nullable();
             $table->enum('size', ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'])->nullable();
             $table->integer('quantity')->nullable();
