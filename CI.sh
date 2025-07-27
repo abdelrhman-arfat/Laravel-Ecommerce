@@ -2,6 +2,9 @@
 
 set -e  # Exit if any command fails
 
+# 📩 Ask for commit message
+read -p "📝 Enter your commit message: " msg
+
 echo "🔍 Running tests inside Docker..."
 
 # Go to Laravel app folder
@@ -17,7 +20,7 @@ cd ..
 
 echo "🚀 Adding and committing changes..."
 git add .
-git commit -m "ci: update from development"
+git commit -m "ci: $msg"
 
 echo "📤 Pushing to development branch..."
 git checkout development
@@ -31,13 +34,9 @@ echo "⬇️ Pulling latest from origin/main..."
 git pull origin main
 
 echo "🔀 Merging development into main..."
-git merge development
+git merge development -m "merge after '$msg'"
 
 echo "📤 Pushing merged changes to main..."
 git push origin main
 
-<<<<<<< HEAD
 echo "✅ Done: Development merged into Main!"
-=======
-echo "✅ Done: Development merged into Main!"
->>>>>>> development
