@@ -16,17 +16,22 @@ class UserService implements UserServiceInterface
 
   public function update(User $user, array $data)
   {
-    return $user->update($data);
+    $user->update($data);
+    return $user->fresh();
   }
 
   public function delete(User $user)
   {
-    return $user->update(['is_active' => false]);
+    $user->is_active = false;
+    $user->save();
+    return $user;
   }
 
   public function restore(User $user)
   {
-    return $user->update(['is_active' => true]);
+    $user->is_active = true;
+    $user->save();
+    return $user;
   }
 
   public function find($id)
@@ -44,10 +49,11 @@ class UserService implements UserServiceInterface
     return User::where('email', $email)->first();
   }
 
-  public function getUserOrder($email)
+  public function getUserOrder($userId)
   {
-    return User::where('email', $email)->with('orders')->first();
+    return User::with('orders')->findOrFail($userId)->orders;
   }
+
 
   public function getMyOrders(User $user)
   {
