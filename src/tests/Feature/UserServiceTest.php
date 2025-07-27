@@ -39,6 +39,7 @@ class UserServiceTest extends TestCase
         $user = $service->create($this->userData);
 
 
+        // assert
         $this->assertInstanceOf(User::class, $user);
         $this->assertEquals('test@example.com', $user->email);
         $this->assertTrue(Hash::check('test123', $user->password));
@@ -61,8 +62,10 @@ class UserServiceTest extends TestCase
             'email_verified_at' => now()
         ];
 
+        // update the user
         $updatedUser = $service->update($user, $data);
 
+        // assert
         $this->assertInstanceOf(User::class, $updatedUser);
         $this->assertEquals('updated@example.com', $updatedUser->email);
         $this->assertTrue(Hash::check('updated123', $updatedUser->password));
@@ -78,6 +81,7 @@ class UserServiceTest extends TestCase
         // delete the user
         $deletedUser = $service->delete($user);
 
+        // assert
         $this->assertInstanceOf(User::class, $deletedUser);
         $this->assertFalse($deletedUser->is_active);
     }
@@ -96,6 +100,7 @@ class UserServiceTest extends TestCase
         // restore the user
         $restoredUser = $service->restore($user);
 
+        // assert
         $this->assertInstanceOf(User::class, $restoredUser);
         $this->assertTrue($restoredUser->is_active);
     }
@@ -109,6 +114,7 @@ class UserServiceTest extends TestCase
         // find the user
         $foundUser = $service->find($user->id);
 
+        // assert
         $this->assertInstanceOf(User::class, $foundUser);
         $this->assertEquals($user->id, $foundUser->id);
         $this->assertEquals($user->email, $foundUser->email);
@@ -138,6 +144,7 @@ class UserServiceTest extends TestCase
         // get all users
         $users = $service->all();
 
+        // assert
         $this->assertInstanceOf(Collection::class, $users);
         $this->assertCount(5, $users);
     }
@@ -154,7 +161,7 @@ class UserServiceTest extends TestCase
         // Get the user's orders from the service
         $userOrders = $service->getUserOrder($user->id);
 
-        // Assertions
+        // assert
         $this->assertCount(3, $userOrders);
         $this->assertInstanceOf(Order::class, $userOrders[0]);
         $this->assertEquals($orders->pluck('id')->sort()->values(), $userOrders->pluck('id')->sort()->values());
@@ -174,7 +181,7 @@ class UserServiceTest extends TestCase
         // Get the user's orders from the service
         $userOrders = $service->getMyOrders($user);
 
-        // Assertions
+        // assert
         $this->assertCount(3, $userOrders);
         $this->assertInstanceOf(Order::class, $userOrders[0]);
         $this->assertEquals($orders->pluck('id')->sort()->values(), $userOrders->pluck('id')->sort()->values());
