@@ -8,7 +8,7 @@ echo "🔍 Running tests inside Docker..."
 cd src
 
 # Run Laravel tests inside Docker container
-docker compose exec ecommercelaravel-app-1 php artisan test
+docker exec ecommercelaravel-app-1 php artisan test
 
 echo "✅ Tests passed!"
 
@@ -36,4 +36,8 @@ git merge development
 echo "📤 Pushing merged changes to main..."
 git push origin main
 
+<<<<<<< HEAD
 echo "✅ Done: Development merged into Main!"
+=======
+echo "✅ Done: Development merged into Main!"
+>>>>>>> development
