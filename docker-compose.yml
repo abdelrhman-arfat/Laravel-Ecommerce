@@ -10,6 +10,8 @@ services:
     working_dir: /var/www
     depends_on:
       - db
+      - redis 
+
     networks:
       - laravel
 
@@ -40,7 +42,13 @@ services:
       - dbdata:/var/lib/mysql
     networks:
       - laravel
-
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - laravel
 networks:
   laravel:
     driver: bridge
