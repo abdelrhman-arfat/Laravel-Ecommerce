@@ -187,3 +187,6 @@ Use Postman, Insomnia, or any REST client to test your endpoints.
 - Merge only fully tested features to `main`.
 
 ---
+### After Main Points:
+1. Image Upload
+2. Whish list
