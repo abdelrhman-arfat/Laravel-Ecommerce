@@ -15,10 +15,12 @@ class UserServiceTest extends TestCase
 {
 
     protected array $userData;
-
+    protected $userService;
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->userService = $this->app->make(UserService::class);
 
         $this->userData = [
             'name' => 'Test User',
@@ -34,9 +36,8 @@ class UserServiceTest extends TestCase
 
     public function test_user_service_create_new_user(): void
     {
-        $service = $this->app->make(UserService::class);
 
-        $user = $service->create($this->userData);
+        $user = $this->userService->create($this->userData);
 
 
         // assert
@@ -47,7 +48,6 @@ class UserServiceTest extends TestCase
 
     public function test_user_service_update_user(): void
     {
-        $service = $this->app->make(UserService::class);
 
         // create a user
         $user = User::create([...$this->userData, 'password' => Hash::make($this->userData['password'])]);
@@ -63,7 +63,7 @@ class UserServiceTest extends TestCase
         ];
 
         // update the user
-        $updatedUser = $service->update($user, $data);
+        $updatedUser = $this->userService->update($user, $data);
 
         // assert
         $this->assertInstanceOf(User::class, $updatedUser);
@@ -73,13 +73,12 @@ class UserServiceTest extends TestCase
 
     public function test_user_service_delete_user(): void
     {
-        $service = $this->app->make(UserService::class);
 
         // create a user
         $user = User::create([...$this->userData, 'password' => Hash::make($this->userData['password'])]);
 
         // delete the user
-        $deletedUser = $service->delete($user);
+        $deletedUser = $this->userService->delete($user);
 
         // assert
         $this->assertInstanceOf(User::class, $deletedUser);
@@ -88,8 +87,6 @@ class UserServiceTest extends TestCase
 
     public function test_user_service_restore_user(): void
     {
-        $service = $this->app->make(UserService::class);
-
         // create a user
         $user = User::create([
             ...$this->userData,
@@ -98,7 +95,7 @@ class UserServiceTest extends TestCase
         ]);
 
         // restore the user
-        $restoredUser = $service->restore($user);
+        $restoredUser = $this->userService->restore($user);
 
         // assert
         $this->assertInstanceOf(User::class, $restoredUser);
@@ -106,13 +103,11 @@ class UserServiceTest extends TestCase
     }
     public function test_user_service_find_user(): void
     {
-        $service = $this->app->make(UserService::class);
-
         // create a user
         $user = User::create([...$this->userData, 'password' => Hash::make($this->userData['password'])]);
 
         // find the user
-        $foundUser = $service->find($user->id);
+        $foundUser = $this->userService->find($user->id);
 
         // assert
         $this->assertInstanceOf(User::class, $foundUser);
@@ -122,13 +117,12 @@ class UserServiceTest extends TestCase
 
     public function test_user_service_find_user_by_email(): void
     {
-        $service = $this->app->make(UserService::class);
 
         // create a user
         $user = User::create([...$this->userData, 'password' => Hash::make($this->userData['password'])]);
 
         // find the user by email
-        $foundUser = $service->findByEmail($user->email);
+        $foundUser = $this->userService->findByEmail($user->email);
 
         $this->assertInstanceOf(User::class, $foundUser);
         $this->assertEquals($user->email, $foundUser->email);
@@ -136,13 +130,12 @@ class UserServiceTest extends TestCase
 
     public function test_user_service_all_users(): void
     {
-        $service = $this->app->make(UserService::class);
 
         // create some users
         User::factory()->count(5)->create();
 
         // get all users
-        $users = $service->all();
+        $users = $this->userService->all();
 
         // assert
         $this->assertInstanceOf(Collection::class, $users);
@@ -150,7 +143,6 @@ class UserServiceTest extends TestCase
     }
     public function test_user_service_get_user_order(): void
     {
-        $service = $this->app->make(UserService::class);
 
         // create a user
         $user = User::create([...$this->userData, 'password' => Hash::make($this->userData['password'])]);
@@ -159,7 +151,7 @@ class UserServiceTest extends TestCase
         $orders = Order::factory()->count(3)->create(['user_id' => $user->id]);
 
         // Get the user's orders from the service
-        $userOrders = $service->getUserOrder($user->id);
+        $userOrders = $this->userService->getUserOrder($user->id);
 
         // assert
         $this->assertCount(3, $userOrders);
@@ -170,7 +162,6 @@ class UserServiceTest extends TestCase
 
     public function test_user_service_get_my_orders(): void
     {
-        $service = $this->app->make(UserService::class);
 
         // create a user
         $user = User::create([...$this->userData, 'password' => Hash::make($this->userData['password'])]);
@@ -179,7 +170,7 @@ class UserServiceTest extends TestCase
         $orders = Order::factory()->count(3)->create(['user_id' => $user->id]);
 
         // Get the user's orders from the service
-        $userOrders = $service->getMyOrders($user);
+        $userOrders = $this->userService->getMyOrders($user);
 
         // assert
         $this->assertCount(3, $userOrders);
