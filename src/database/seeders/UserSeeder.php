@@ -19,7 +19,9 @@ class UserSeeder extends Seeder
             'name' => 'Admin User',
             'email' => 'admin@example.com',
             'password' => Hash::make('admin123'), // or bcrypt('admin123')
-            'role' => 'admin', // if you have roles
+            'role' => 'admin',
+            'is_active' => true,
+            'email_verified_at' => now()
         ]);
 
 
