@@ -1,36 +1,29 @@
 #!/bin/bash
+set -e
 
-set -e  # Exit if any command fails
-
-# 📩 Ask for commit message
 read -p "📝 Enter your commit message: " msg
 
 echo "🔍 Running tests inside Docker..."
-
-# Run Laravel tests inside Docker container
 docker exec ecommercelaravel-app-1 php artisan test
 
 echo "✅ Tests passed!"
 
-echo "🚀 Adding and committing changes..."
+# Switch to development and pull latest
+git checkout development
+git pull origin development
+
+# Add and commit
+echo "🚀 Committing changes..."
 git add .
 git commit -m "ci: $msg"
 
-echo "📤 Pushing to development branch..."
-git checkout development
-git pull origin development
+# Push to development
 git push origin development
 
-echo "🔄 Switching to main branch..."
+# Merge to main
 git checkout main
-
-echo "⬇️ Pulling latest from origin/main..."
 git pull origin main
-
-echo "🔀 Merging development into main..."
 git merge development -m "merge after '$msg'"
-
-echo "📤 Pushing merged changes to main..."
 git push origin main
 
-echo "✅ Done: Development merged into Main!"
+echo "✅ Done: Pushed to both development and main!"
