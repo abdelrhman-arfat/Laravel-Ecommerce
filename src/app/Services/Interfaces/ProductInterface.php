@@ -7,6 +7,8 @@ use App\Models\Product;
 interface ProductInterface
 {
   public function all();
+  public function trashed();
+  public function allWithTrashed();
   public function find($id);
   public function create(array $data);
   public function update(Product $product, array $data);
@@ -14,5 +16,5 @@ interface ProductInterface
   public function restore(Product $product);
   public function search($name);
   public function getVariants($product);
-  
+  public function getOrders($product);
 }
