@@ -10,7 +10,7 @@ class ProductVariant extends Model
     use HasFactory;
     //
     protected $table = 'product_variants';
-    protected $fillable = ['product_id', 'color', 'size', 'quantity'];
+    protected $fillable = ['product_id', 'color', 'size', 'quantity', 'is_active'];
     protected $hidden = ['created_at', 'updated_at'];
 
     public function product()
