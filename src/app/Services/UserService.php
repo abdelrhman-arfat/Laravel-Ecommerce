@@ -14,6 +14,7 @@ class UserService implements UserServiceInterface
     return User::create($data);
   }
 
+
   public function update(User $user, array $data)
   {
     $user->update($data);
