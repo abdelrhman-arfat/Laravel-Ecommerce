@@ -2,4 +2,16 @@
 
 namespace App\Services\Interfaces;
 
-class OrderInterface {}
+use App\Models\Order;
+
+interface OrderInterface
+{
+  public function all();
+  public function find($id);
+  public function create(array $data);
+  public function update(Order $order, string $status);
+  public function cancel(Order $order);
+  public function restore(Order $order);
+  public function searchByStatus($status);
+  public function searchByEmail($email);
+}

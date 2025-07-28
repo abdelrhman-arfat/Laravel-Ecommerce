@@ -2,4 +2,4 @@
 
 namespace App\Services\Interfaces;
 
-class PaymentInterface {}
+interface PaymentInterface {}
