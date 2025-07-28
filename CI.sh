@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Stop script if any command fails
-set -e
 
 read -p "📝 Enter your commit message: " msg
 
@@ -9,36 +7,38 @@ echo "🔍 Running tests inside Docker..."
 docker exec ecommercelaravel-app-1 php artisan test
 echo "✅ Tests passed!"
 
-# Get current branch name
+# Go to development branch if not already on it
 current_branch=$(git rev-parse --abbrev-ref HEAD)
-
-# Checkout to development if not already on it
 if [ "$current_branch" != "development" ]; then
   echo "🔁 Switching to development branch..."
   git checkout development
 fi
 
-# Pull latest changes from development
-echo "⬇️ Pulling latest from development..."
 git pull origin development
 
-# Add and commit changes
-echo "🚀 Committing changes..."
-git add .
-git commit -m "ci: $msg"
+# Check for changes before committing
+if [ -n "$(git status --porcelain)" ]; then
+  echo "🚀 Committing changes..."
+  git add .
+  if git commit -m "ci: $msg"; then
+    echo "📤 Pushing to development..."
+    git push origin development
+  else
+    echo "❌ Git commit failed. Please check your message."
+    exit 1
+  fi
+else
+  echo "⚠️ No changes to commit."
+fi
 
-# Push to development
-echo "📤 Pushing to development branch..."
-git push origin development
-
-# Merge to main
-echo "🔁 Switching to main branch..."
-git checkout main
-echo "⬇️ Pulling latest from main..."
-git pull origin main
-echo "🔀 Merging development into main..."
-git merge development -m "merge after '$msg'"
-echo "📤 Pushing to main..."
-git push origin main
-
-echo "✅ Done: Changes pushed to both development and main!"
+# Ask before merging to main
+read -p "🔄 Do you want to merge development into main? (y/n): " confirm
+if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+  git checkout main
+  git pull origin main
+  git merge development -m "merge after '$msg'"
+  git push origin main
+  echo "✅ Merged and pushed to main!"
+else
+  echo "ℹ️ Skipped merging to main."
+fi
