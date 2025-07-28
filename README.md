@@ -51,43 +51,56 @@ git clone https://github.com/abdelrhman-arfat/Laravel-Ecommerce.git
 ```bash
 #!/bin/bash
 
-set -e  # Exit if any command fails
+read -p "📝 Enter your commit message: " msg
 
 echo "🔍 Running tests inside Docker..."
+test_output=$(docker exec your_folder_name-app-1 php artisan test)
+echo "$test_output"
 
-# Go to Laravel app folder
-cd src
+# Check if the test output includes any FAILURES
+if echo "$test_output" | grep -q "FAILURES"; then
+  echo "❌ Some tests failed! Fix them before committing."
+  exit 1
+fi
 
-# Run Laravel tests inside Docker container
-docker exec yourfolder-app-1 php artisan test
+# Confirm all tests passed
+if echo "$test_output" | grep -q "Tests:.*passed"; then
+  echo "✅ Tests passed!"
+else
+  echo "❌ Tests did not complete successfully. Check the output above."
+  exit 1
+fi
 
-echo "✅ Tests passed!"
+# Go to development branch if not already on it
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+if [ "$current_branch" != "development" ]; then
+  echo "🔁 Switching to development branch..."
+  git checkout development
+fi
 
-# Back to project root (outside src)
-cd ..
-
-echo "🚀 Adding and committing changes..."
-git add .
-git commit -m "ci: update from development"
-
-echo "📤 Pushing to development branch..."
-git checkout development
 git pull origin development
-git push origin development
 
-echo "🔄 Switching to main branch..."
-git checkout main
+# Check for changes before committing
+if [ -n "$(git status --porcelain)" ]; then
+  echo "🚀 Committing changes..."
+  git add .
+  git commit -m "ci: $msg"
+  git push origin development
+else
+  echo "⚠️ No changes to commit."
+fi
 
-echo "⬇️ Pulling latest from origin/main..."
-git pull origin main
+read -p "🔄 Do you want to merge development into main? (y/n): " confirm
+if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+  git checkout main
+  git pull origin main
+  git merge development -m "merge after '$msg'"
+  git push origin main
+  echo "✅ Merged and pushed to main!"
+else
+  echo "ℹ️ Skipped merging to main."
+fi
 
-echo "🔀 Merging development into main..."
-git merge development
-
-echo "📤 Pushing merged changes to main..."
-git push origin main
-
-echo "✅ Done: Development merged into Main!"
 ```
 
 ---
