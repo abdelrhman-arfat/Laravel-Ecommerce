@@ -1,11 +1,17 @@
 #!/bin/bash
 
-
 read -p "📝 Enter your commit message: " msg
 
 echo "🔍 Running tests inside Docker..."
 docker exec ecommercelaravel-app-1 php artisan test
-echo "✅ Tests passed!"
+test_status=$?
+
+if [ $test_status -ne 0 ]; then
+  echo "❌ Tests failed! Fix the errors before committing."
+  exit 1
+else
+  echo "✅ Tests passed!"
+fi
 
 # Go to development branch if not already on it
 current_branch=$(git rev-parse --abbrev-ref HEAD)
@@ -20,18 +26,12 @@ git pull origin development
 if [ -n "$(git status --porcelain)" ]; then
   echo "🚀 Committing changes..."
   git add .
-  if git commit -m "ci: $msg"; then
-    echo "📤 Pushing to development..."
-    git push origin development
-  else
-    echo "❌ Git commit failed. Please check your message."
-    exit 1
-  fi
+  git commit -m "ci: $msg"
+  git push origin development
 else
   echo "⚠️ No changes to commit."
 fi
 
-# Ask before merging to main
 read -p "🔄 Do you want to merge development into main? (y/n): " confirm
 if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
   git checkout main
