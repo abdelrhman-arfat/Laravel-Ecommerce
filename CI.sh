@@ -3,14 +3,21 @@
 read -p "📝 Enter your commit message: " msg
 
 echo "🔍 Running tests inside Docker..."
-docker exec ecommercelaravel-app-1 php artisan test
-test_status=$?
+test_output=$(docker exec ecommercelaravel-app-1 php artisan test)
+echo "$test_output"
 
-if [ $test_status -ne 0 ]; then
-  echo "❌ Tests failed! Fix the errors before committing."
+# Check if the test output includes any FAILURES
+if echo "$test_output" | grep -q "FAILURES"; then
+  echo "❌ Some tests failed! Fix them before committing."
   exit 1
-else
+fi
+
+# Confirm all tests passed
+if echo "$test_output" | grep -q "Tests:.*passed"; then
   echo "✅ Tests passed!"
+else
+  echo "❌ Tests did not complete successfully. Check the output above."
+  exit 1
 fi
 
 # Go to development branch if not already on it
