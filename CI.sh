@@ -7,16 +7,12 @@ read -p "📝 Enter your commit message: " msg
 
 echo "🔍 Running tests inside Docker..."
 
-# Go to Laravel app folder
-cd src
 
 # Run Laravel tests inside Docker container
 docker exec ecommercelaravel-app-1 php artisan test
 
 echo "✅ Tests passed!"
 
-# Back to project root (outside src)
-cd ..
 
 echo "🚀 Adding and committing changes..."
 git add .
