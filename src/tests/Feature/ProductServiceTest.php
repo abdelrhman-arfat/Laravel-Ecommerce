@@ -37,7 +37,7 @@ class ProductServiceTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function test_create_new_product(): void
+    public function test_product_service_create_new_product(): void
     {
         $product = $this->productService->create($this->productData);
         $this->assertEquals($product->name, $this->productData['name']);
@@ -45,29 +45,29 @@ class ProductServiceTest extends TestCase
         $this->assertEquals($product->price, $this->productData['price']);
         $this->assertEquals($product->is_active, $this->productData['is_active']);
     }
-    public function test_update_product_success(): void
+    public function test_product_service_update_product_success(): void
     {
-        $product = $this->productService->create($this->productData);
+        $product = Product::create($this->productData);
         $updatedProduct = $this->productService->update($product, $this->productUpdateData);
         $this->assertEquals($updatedProduct->name, $this->productUpdateData['name']);
         $this->assertEquals($updatedProduct->description, $this->productUpdateData['description']);
         $this->assertEquals($updatedProduct->price, $this->productUpdateData['price']);
         $this->assertEquals($updatedProduct->is_active, $this->productUpdateData['is_active']);
     }
-    public function test_soft_delete_product(): void
+    public function test_product_service_soft_delete_product(): void
     {
         $product = Product::create($this->productData);
 
         $deletedProduct = $this->productService->delete($product);
         $this->assertEquals($deletedProduct->is_active, false);
     }
-    public function test_restore_product(): void
+    public function test_product_service_restore_product(): void
     {
         $product = Product::create([...$this->productData, 'is_active' => false]);
         $restoredProduct = $this->productService->restore($product);
         $this->assertEquals($restoredProduct->is_active, true);
     }
-    public function test_trashed_products(): void
+    public function test_product_service_trashed_products(): void
     {
         Product::factory()->count(3)->state(['is_active' => false])->create();
         $trashedProducts = $this->productService->trashed();
@@ -78,7 +78,7 @@ class ProductServiceTest extends TestCase
             $trashedProducts->every(fn($product) => !$product->is_active)
         );
     }
-    public function test_all_products(): void
+    public function test_product_service_all_products(): void
     {
         Product::factory()->count(3)->state(['is_active' => true])->create();
 
@@ -90,7 +90,7 @@ class ProductServiceTest extends TestCase
             $allProducts->every(fn($product) => $product->is_active)
         );
     }
-    public function test_all_products_with_trashed(): void
+    public function test_product_service_all_products_with_trashed(): void
     {
         Product::factory()->count(3)->create(['is_active' => false]);
         Product::factory()->count(3)->create(['is_active' => true]);
@@ -99,13 +99,13 @@ class ProductServiceTest extends TestCase
         $this->assertEquals($allProducts->count(), 6);
         $this->assertInstanceOf(Product::class, $allProducts[0]);
     }
-    public function test_find_product(): void
+    public function test_product_service_find_product(): void
     {
         $product = Product::factory()->create([...$this->productData, 'is_active' => true]);
         $foundProduct = $this->productService->find($product->id);
         $this->assertEquals($foundProduct->id, $product->id);
     }
-    public function test_find_by_names(): void
+    public function test_product_service_find_by_names(): void
     {
         $product = Product::factory()->count(3)->create($this->productData);
         $foundProduct = $this->productService->search($this->productData['name']);

@@ -1,4 +1,4 @@
 <?php
 namespace App\Services\Interfaces;
 
-class ProductVariantInterface {}
+interface ProductVariantInterface {}
