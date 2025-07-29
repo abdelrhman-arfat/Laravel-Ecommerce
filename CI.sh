@@ -18,7 +18,6 @@ fi
 echo "✅ Tests passed!"
 cd ..
 
-echo "🔁 Checking out development branch..."
 # Go to development branch if not already on it
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 if [ "$current_branch" != "development" ]; then
@@ -45,6 +44,7 @@ if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
   git merge development -m "merge after '$msg'"
   git push origin main
   echo "✅ Merged and pushed to main!"
+  git checkout development
 else
   echo "ℹ️ Skipped merging to main."
 fi
