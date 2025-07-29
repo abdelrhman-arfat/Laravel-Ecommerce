@@ -12,7 +12,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements MustVerifyEmail, JWTSubject
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Notifiable;
 
 
     protected $fillable = [
