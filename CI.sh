@@ -3,8 +3,10 @@
 read -p "📝 Enter your commit message: " msg
 
 echo "🔍 Running tests inside Docker..."
-test_output=$(docker exec ecommercelaravel-app-1 php artisan test)
+cd ./src
+test_output=$(php artisan test)
 echo "$test_output"
+
 
 # Check if the test output includes any FAILURES
 if echo "$test_output" | grep -q "FAILURES"; then
@@ -15,6 +17,7 @@ fi
 # Confirm all tests passed
 if echo "$test_output" | grep -q "Tests:.*passed"; then
   echo "✅ Tests passed!"
+  cd ..
 else
   echo "❌ Tests did not complete successfully. Check the output above."
   exit 1

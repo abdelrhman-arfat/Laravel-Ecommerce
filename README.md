@@ -124,10 +124,12 @@ Update the `.env` file with the following (match Docker MySQL service):
 DB_CONNECTION=mysql
 DB_HOST=db
 DB_PORT=3306
-DB_DATABASE=ecommerce
+DB_DATABASE=laravel
 DB_USERNAME=root
-DB_PASSWORD=root
+DB_PASSWORD=secret
 ```
+
+cp .env.worker all in the .env file but update the name to work with docker service
 
 ---
 
