@@ -2,27 +2,23 @@
 
 read -p "📝 Enter your commit message: " msg
 
-echo "🔍 Running tests inside Docker..."
 cd ./src
-test_output=$(php artisan test)
-echo "$test_output"
+echo "🔍 Running tests ..."
 
+# Run tests and capture exit code
+php artisan test
+test_exit_code=$?
 
-# Check if the test output includes any FAILURES
-if echo "$test_output" | grep -q "FAILURES"; then
+# Exit early if tests failed
+if [ $test_exit_code -ne 0 ]; then
   echo "❌ Some tests failed! Fix them before committing."
   exit 1
 fi
 
-# Confirm all tests passed
-if echo "$test_output" | grep -q "Tests:.*passed"; then
-  echo "✅ Tests passed!"
-  cd ..
-else
-  echo "❌ Tests did not complete successfully. Check the output above."
-  exit 1
-fi
+echo "✅ Tests passed!"
+cd ..
 
+echo "🔁 Checking out development branch..."
 # Go to development branch if not already on it
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 if [ "$current_branch" != "development" ]; then

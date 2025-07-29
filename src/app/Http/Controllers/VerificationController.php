@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Interfaces\UserServiceInterface;
 use App\Services\JsonResponseService;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
@@ -9,26 +10,28 @@ use Illuminate\Http\Request;
 
 class VerificationController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserServiceInterface $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function verify(Request $request, $id, $hash)
     {
-        $user = auth()->user();
+        $user = $this->userService->find($id);
 
-        if (!$user || $user->id != $id) {
-            return JsonResponseService::errorResponse(401, 'Unauthorized');
-        }
-
-        if (!hash_equals(sha1($user->getEmailForVerification()), $hash)) {
-            return JsonResponseService::errorResponse(403, 'Invalid verification link');
+        if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            return JsonResponseService::errorResponse(401, 'Invalid token');
         }
 
         if ($user->hasVerifiedEmail()) {
-            return JsonResponseService::successResponse(null, 200, 'Email already verified');
+            return JsonResponseService::successResponse($user, 200, "Email already verified");
         }
 
         $user->markEmailAsVerified();
-
         event(new Verified($user));
 
-        return JsonResponseService::successResponse(null, 200, 'Email verified successfully');
+        return JsonResponseService::successResponse($user, 201, "Email verified successfully");
     }
 }
