@@ -33,5 +33,6 @@ class VerificationController extends Controller
         event(new Verified($user));
 
         return JsonResponseService::successResponse($user, 201, "Email verified successfully");
+        // you can redirect the user to the frontend page you want if you use build in front end in the laravel or any library
     }
 }
