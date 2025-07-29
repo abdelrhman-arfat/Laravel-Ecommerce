@@ -22,6 +22,9 @@ class SignUpApiTest extends TestCase
             'password' => '12345678'
         ]);
 
+        $response->dump(); 
+
+
         $response->assertStatus(201);
         $response->assertJsonStructure(['data', 'message']);
         $response->assertJson(['message' => 'User created successfully']);
