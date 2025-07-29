@@ -2,6 +2,8 @@
 vendor
 node_modules
 .env
+.evn.worker
+.env.testing
 
 # OS files
 .DS_Store
