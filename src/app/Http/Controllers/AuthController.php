@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SignUpUserRequest;
+use App\Notifications\WelcomeEmail;
 use App\Services\Interfaces\UserServiceInterface;
 use App\Services\JsonResponseService;
 use App\Services\JwtService;
@@ -22,12 +23,9 @@ class AuthController extends Controller
     {
         $validated = $request->only("name", "email", "password");
 
-        $user = $this->userService->findByEmail($validated['email']);
-        if ($user) {
-            return JsonResponseService::errorResponse(400, 'User already exists');
-        }
-
         $user = $this->userService->create($validated);
+        $user->sendEmailVerificationNotification();
+        $user->notify(new WelcomeEmail());
 
         $token = JwtService::generateToken($user); // 1 hour
         $refreshToken = JwtService::generateRefreshToken($user); // 7 days

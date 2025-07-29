@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class SignInUserRequest extends FormRequest
 {
@@ -35,5 +37,14 @@ class SignInUserRequest extends FormRequest
             'password.required' => 'The password field is required.',
             'password.min' => 'The password field must be at least 8 characters.',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'status' => 'error',
+            'data' => null,
+            'message' => $validator->errors()->first(),
+        ], 400));
     }
 }
