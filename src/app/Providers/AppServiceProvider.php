@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\CartService;
+use App\Services\Interfaces\CartInterface;
 use App\Services\Interfaces\OrderInterface;
 use App\Services\Interfaces\OrderItemInterface;
 use App\Services\Interfaces\PaymentInterface;
@@ -33,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ProductVariantInterface::class, ProductVariantService::class);
 
         $this->app->bind(PaymentInterface::class, PaymentService::class);
+
+        $this->app->bind(CartInterface::class, CartService::class);
     }
 
     /**
