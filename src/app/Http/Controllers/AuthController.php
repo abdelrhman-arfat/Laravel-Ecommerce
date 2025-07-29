@@ -21,74 +21,84 @@ class AuthController extends Controller
 
     public function signup(SignUpUserRequest $request)
     {
-        $validated = $request->only("name", "email", "password");
+        try {
 
-        $user = $this->userService->create($validated);
-        $user->sendEmailVerificationNotification();
-        $user->notify(new WelcomeEmail());
+            $validated = $request->only("name", "email", "password");
 
-        $token = JwtService::generateToken($user); // 1 hour
-        $refreshToken = JwtService::generateRefreshToken($user); // 7 days
+            $user = $this->userService->create($validated);
+            $user->sendEmailVerificationNotification();
+            $user->notify(new WelcomeEmail());
 
-        return JsonResponseService::successResponse($user, 201, "User created successfully")
-            ->withCookie(cookie(
-                'refresh_token',
-                $refreshToken,
-                60 * 24 * 7,
-                null,
-                null,
-                true, // secure: HTTPS only
-                true, // httpOnly
-                false, // raw
-                'Strict' // sameSite
-            ))
-            ->withCookie(cookie(
-                'token',
-                $token,
-                60,
-                null,
-                null,
-                true, // secure
-                true, // httpOnly
-                false,
-                'Strict'
-            ));
+            $token = JwtService::generateToken($user); // 1 hour
+            $refreshToken = JwtService::generateRefreshToken($user); // 7 days
+
+            return JsonResponseService::successResponse($user, 201, "User created successfully")
+                ->withCookie(cookie(
+                    'refresh_token',
+                    $refreshToken,
+                    60 * 24 * 7,
+                    null,
+                    null,
+                    true, // secure: HTTPS only
+                    true, // httpOnly
+                    false, // raw
+                    'Strict' // sameSite
+                ))
+                ->withCookie(cookie(
+                    'token',
+                    $token,
+                    60,
+                    null,
+                    null,
+                    true, // secure
+                    true, // httpOnly
+                    false,
+                    'Strict'
+                ));
+        } catch (\Exception $e) {
+            return JsonResponseService::errorResponse(500, $e->getMessage());
+        }
     }
     public function signin(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        try {
 
-        // Check if user exists
-        $user = $this->userService->findByEmail($credentials['email']);
-        if (!$user || !password_verify($credentials['password'], $user->password)) {
-            return JsonResponseService::errorResponse(401, 'Invalid credentials');
+            $credentials = $request->only('email', 'password');
+
+            // Check if user exists
+            $user = $this->userService->findByEmail($credentials['email']);
+            if (!$user || !password_verify($credentials['password'], $user->password)) {
+                return JsonResponseService::errorResponse(401, 'Invalid credentials');
+            }
+
+            $token = JwtService::generateToken($user); // 1 hour
+            $refreshToken = JwtService::generateRefreshToken($user); // 7 days
+
+            return JsonResponseService::successResponse($user, 200, "Login successful")
+                ->withCookie(cookie(
+                    'refresh_token',
+                    $refreshToken,
+                    60 * 24 * 7,
+                    null,
+                    null,
+                    true, // secure
+                    true, // httpOnly
+                    false,
+                    'Strict'
+                ))
+                ->withCookie(cookie(
+                    'token',
+                    $token,
+                    60,
+                    null,
+                    null,
+                    true,
+                    true,
+                    false,
+                    'Strict'
+                ));
+        } catch (\Exception $e) {
+            return JsonResponseService::errorResponse(500, $e->getMessage());
         }
-
-        $token = JwtService::generateToken($user); // 1 hour
-        $refreshToken = JwtService::generateRefreshToken($user); // 7 days
-
-        return JsonResponseService::successResponse($user, 200, "Login successful")
-            ->withCookie(cookie(
-                'refresh_token',
-                $refreshToken,
-                60 * 24 * 7,
-                null,
-                null,
-                true, // secure
-                true, // httpOnly
-                false,
-                'Strict'
-            ))
-            ->withCookie(cookie(
-                'token',
-                $token,
-                60,
-                null,
-                null,
-                true,
-                true,
-                false,
-                'Strict'
-            ));
     }
 }
