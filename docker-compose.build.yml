@@ -1,21 +1,44 @@
 services:
-  worker:
+  app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.build
     volumes:
       - ./src:/var/www
     working_dir: /var/www
-    environment:
-      - DB_PORT=3306
-      - DB_HOST=db
-      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+
+    networks:
+      - laravel
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.build
+    volumes:
+      - ./src:/var/www
+    working_dir: /var/www
     depends_on:
       - db
       - redis
     networks:
       - laravel
     command: php artisan queue:work --sleep=3 --tries=3 --timeout=90
+
+  webserver:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./src:/var/www
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - laravel
 
   db:
     image: mysql:8.0
@@ -31,7 +54,6 @@ services:
       - dbdata:/var/lib/mysql
     networks:
       - laravel
-
   redis:
     image: redis:alpine
     restart: unless-stopped
@@ -39,7 +61,6 @@ services:
       - "6379:6379"
     networks:
       - laravel
-
 networks:
   laravel:
     driver: bridge

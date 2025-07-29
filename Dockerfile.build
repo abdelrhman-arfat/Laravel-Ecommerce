@@ -1,7 +1,8 @@
-FROM php:8.2.11-cli
+FROM php:8.2.11-fpm
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer -o composer-setup.php \
+RUN echo "Install COMPOSER" \
+  && curl -sS https://getcomposer.org/installer -o composer-setup.php \
   && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
   && rm composer-setup.php
 
@@ -12,22 +13,32 @@ RUN docker-php-ext-install pdo pdo_mysql
 RUN pecl install redis && docker-php-ext-enable redis
 
 # Install utilities and libraries
-RUN apt-get update && apt-get -y install \
+RUN apt-get update && apt-get -y install --fix-missing \
   nano \
   wget \
   vim \
   git \
   curl \
   zip \
-  unzip \
+  build-essential \
+  libcurl4 \
+  libcurl4-openssl-dev \
+  zlib1g-dev \
   libzip-dev \
+  libbz2-dev \
+  locales \
+  libicu-dev \
+  libonig-dev \
+  libxml2-dev \
+  apt-utils \
+  dialog \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /var/www
 
-# Expose Laravel port
-EXPOSE 8000
+# Expose port for PHP-FPM
+EXPOSE 9000
 
-# Default command (you can override it in docker-compose)
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Run PHP-FPM
+CMD ["php-fpm"]
