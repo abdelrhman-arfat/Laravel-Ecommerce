@@ -101,4 +101,25 @@ class AuthController extends Controller
             return JsonResponseService::errorResponse(500, $e->getMessage());
         }
     }
+
+    public function logout(Request $request)
+    {
+        try {
+            $refreshToken = $request->cookie('refresh_token');
+            $accessToken = $request->cookie('token');
+  
+            if ($refreshToken) {
+                JwtService::invalidateTokenInCookie($refreshToken);
+            }
+            if ($accessToken) {
+                JwtService::invalidateTokenInCookie($accessToken);
+            }
+
+            return JsonResponseService::successResponse(null, 200, "Logout successful")
+                ->withoutCookie("refresh_token")
+                ->withoutCookie('token');
+        } catch (\Exception $e) {
+            return JsonResponseService::errorResponse(500, $e->getMessage());
+        }
+    }
 }
