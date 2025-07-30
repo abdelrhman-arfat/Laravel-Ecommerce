@@ -9,5 +9,6 @@ interface JwtInterface
   public static function getUserFromToken();
   public static function isTokenValid();
   public static function refreshToken();
-  public static function invalidateToken();
+  public static function invalidateTokenInHeader();
+  public static function invalidateTokenInCookie($token);
 }

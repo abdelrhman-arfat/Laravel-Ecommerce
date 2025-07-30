@@ -49,7 +49,7 @@ class JwtService implements JwtInterface
   /**
    * Invalidate the current token (logout).
    */
-  public static function invalidateToken(): bool
+  public static function invalidateTokenInHeader(): bool
   {
     try {
       JWTAuth::parseToken()->invalidate();
@@ -57,6 +57,10 @@ class JwtService implements JwtInterface
     } catch (JWTException $e) {
       return false;
     }
+  }
+  public static function invalidateTokenInCookie($token)
+  {
+    JWTAuth::setToken($token)->invalidate();
   }
 
   /**
