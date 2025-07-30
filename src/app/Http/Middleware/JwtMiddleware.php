@@ -22,7 +22,7 @@ class JwtMiddleware
             $token = $request->cookie('token');
 
             if (!$token) {
-                return JsonResponseService::errorResponse(400, "You aren't logged in");
+                return JsonResponseService::errorResponse(401, "You aren't logged in");
             }
             JWTAuth::setToken($token);
             $user = JWTAuth::authenticate();

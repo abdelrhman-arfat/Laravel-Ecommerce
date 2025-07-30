@@ -37,9 +37,10 @@ class JwtService implements JwtInterface
   /**
    * Get the currently authenticated user from token.
    */
-  public static function getUserFromToken()
+  public static function getUserFromToken($token)
   {
     try {
+      JWTAuth::setToken($token);
       return JWTAuth::parseToken()->authenticate();
     } catch (JWTException $e) {
       return null;
@@ -49,7 +50,7 @@ class JwtService implements JwtInterface
   /**
    * Invalidate the current token (logout).
    */
-  public static function invalidateToken(): bool
+  public static function invalidateTokenInHeader(): bool
   {
     try {
       JWTAuth::parseToken()->invalidate();
@@ -58,13 +59,22 @@ class JwtService implements JwtInterface
       return false;
     }
   }
+  public static function invalidateTokenInCookie($token)
+  {
+    try {
+      return JWTAuth::setToken($token)->invalidate();
+    } catch (\Throwable $e) {
+      return false;
+    }
+  }
 
   /**
    * Refresh the token.
    */
-  public static function refreshToken(): ?string
+  public static function refreshToken($token): ?string
   {
     try {
+      JWTAuth::setToken($token);
       return JWTAuth::parseToken()->refresh();
     } catch (JWTException $e) {
       return null;
@@ -74,9 +84,10 @@ class JwtService implements JwtInterface
   /**
    * Check if token is valid.
    */
-  public static function isTokenValid(): bool
+  public static function isTokenValid($token): bool
   {
     try {
+      JWTAuth::setToken($token);
       return JWTAuth::parseToken()->check();
     } catch (JWTException $e) {
       return false;
