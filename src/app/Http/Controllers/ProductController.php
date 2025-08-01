@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Services\CacheService;
 use Illuminate\Http\Request;
 use App\Services\Interfaces\ProductInterface;
 use App\Services\Interfaces\ProductVariantInterface;
 use App\Services\JsonResponseService;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
 {
@@ -25,7 +27,12 @@ class ProductController extends Controller
         try {
             $limit = $request->query('limit', 10);
 
-            $products = $this->productService->all($limit);
+            $key = CacheService::key('products_active', ['limit' => $limit, "page" => $request->query('page', 1)]);
+
+            $products = CacheService::remember($key, 15, function () use ($limit) {
+                return $this->productService->all($limit);
+            });
+
             return JsonResponseService::successResponseForPagination($products, 200, 'Trashed products retrieved');
         } catch (\Exception $e) {
             return JsonResponseService::errorResponse(500, $e->getMessage());
@@ -36,8 +43,12 @@ class ProductController extends Controller
     {
         try {
             $limit = $request->query('limit', 10);
+            $key = CacheService::key('products_trashed', ['limit' => $limit, "page" => $request->query('page', 1)]);
 
-            $products = $this->productService->trashed($limit);
+            $products = CacheService::remember($key, 15, function () use ($limit) {
+                return $this->productService->trashed($limit);
+            });
+
             return JsonResponseService::successResponseForPagination($products, 200, 'Trashed products retrieved');
         } catch (\Exception $e) {
             return JsonResponseService::errorResponse(500, $e->getMessage());
@@ -48,7 +59,12 @@ class ProductController extends Controller
     {
         try {
             $limit = $request->query('limit', 10);
-            $products = $this->productService->allWithTrashed($limit);
+            $key = CacheService::key('products_all', ['limit' => $limit, "page" => $request->query('page', 1)]);
+
+            $products = CacheService::remember($key, 15, function () use ($limit) {
+                return $this->productService->allWithTrashed($limit);
+            });
+
             return JsonResponseService::successResponseForPagination($products, 200, 'Trashed products retrieved');
         } catch (\Exception $e) {
             return JsonResponseService::errorResponse(500, $e->getMessage());
