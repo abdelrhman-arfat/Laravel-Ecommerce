@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Helpers\DataOfPaginate;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Pagination\AbstractPaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class JsonResponseService
 {
@@ -21,21 +23,30 @@ class JsonResponseService
 
   public static function successResponseForPagination($d, int $code = 200, string $message = '')
   {
+    if (is_array($d) && isset($d['data']) && isset($d['total'])) {
+      $request = request();
+      $page = (int) $request->query('page', 1);
+      $perPage = (int) $request->query('limit', 10);
 
-    $data  = $d->items();
-    $current_page = $d->currentPage();
-    $last_page = $d->lastPage();
-    $per_page = $d->perPage();
-    $total = $d->total();
+      $d = new LengthAwarePaginator(
+        $d['data'],
+        $d['total'],
+        $perPage,
+        $page,
+        ['path' => url()->current(), 'query' => $request->query()]
+      );
+    }
 
     return response()->json([
+      "message" => $message,
       'status' => 'success',
-      'data' => $data,
-      'current_page' => $current_page,
-      'last_page' => $last_page,
-      'per_page' => $per_page,
-      'total' => $total,
-      'message' => $message,
+      'data' => $d->items(),
+      'meta' => [
+        'current_page' => $d->currentPage(),
+        'last_page' => $d->lastPage(),
+        'total' => $d->total(),
+        'per_page' => $d->perPage(),
+      ],
     ], $code);
   }
 

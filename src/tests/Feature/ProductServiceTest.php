@@ -7,6 +7,7 @@ use App\Models\ProductVariant;
 use App\Services\ProductService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class ProductServiceTest extends TestCase
@@ -18,6 +19,7 @@ class ProductServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Cache::flush();
 
         $this->productService = $this->app->make(ProductService::class);
 
@@ -77,7 +79,7 @@ class ProductServiceTest extends TestCase
         }
         $trashedProducts = $this->productService->trashed();
 
-        $this->assertEquals($trashedProducts->count(), 3);
+        $this->assertEquals(count($trashedProducts), 3);
         $this->assertInstanceOf(Product::class, $trashedProducts[0]);
         $this->assertTrue(
             $trashedProducts->every(fn($product) => !$product->is_active)
@@ -118,7 +120,7 @@ class ProductServiceTest extends TestCase
         }
         $allProducts = $this->productService->allWithTrashed();
 
-        $this->assertEquals($allProducts->count(), 6);
+        $this->assertEquals(count($allProducts), 6);
         $this->assertTrue(
             $allProducts->every(fn($product) => $product->variants->count() > 0)
         );
@@ -135,7 +137,7 @@ class ProductServiceTest extends TestCase
     {
         $product = Product::factory()->count(3)->create($this->productData);
         $foundProduct = $this->productService->search($this->productData['name']);
-        $this->assertEquals($foundProduct->count(), 3);
+        $this->assertEquals(count($foundProduct), 3);
         $this->assertInstanceOf(Product::class, $foundProduct[0]);
         $this->assertTrue(
             $foundProduct->every(fn($product) => $product->name === $this->productData['name'])
