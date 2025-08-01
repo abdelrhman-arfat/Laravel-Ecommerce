@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\ProductService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -69,39 +70,64 @@ class ProductServiceTest extends TestCase
     }
     public function test_product_service_trashed_products(): void
     {
-        Product::factory()->count(3)->state(['is_active' => false])->create();
+        $products = Product::factory()->count(3)->state(['is_active' => false])->create();
+
+        foreach ($products as $product) {
+            ProductVariant::factory()->create(['product_id' => $product->id]);
+        }
         $trashedProducts = $this->productService->trashed();
+
         $this->assertEquals($trashedProducts->count(), 3);
         $this->assertInstanceOf(Product::class, $trashedProducts[0]);
-        // loop in all trashed products
         $this->assertTrue(
             $trashedProducts->every(fn($product) => !$product->is_active)
+        );
+        $this->assertTrue(
+            $trashedProducts->every(fn($product) => $product->variants->count() > 0)
         );
     }
     public function test_product_service_all_products(): void
     {
-        Product::factory()->count(3)->state(['is_active' => true])->create();
+        $products = Product::factory()->count(3)->state(['is_active' => true])->create();
 
+        foreach ($products as $product) {
+            ProductVariant::factory()->create(['product_id' => $product->id]);
+        }
         $allProducts = $this->productService->all();
+
         $this->assertEquals($allProducts->count(), 3);
         $this->assertInstanceOf(Product::class, $allProducts[0]);
-        // loop in all active products
+        // loop in all active products  
         $this->assertTrue(
             $allProducts->every(fn($product) => $product->is_active)
+        );
+        $this->assertTrue(
+            $allProducts->every(fn($product) => $product->variants->count() > 0)
         );
     }
     public function test_product_service_all_products_with_trashed(): void
     {
-        Product::factory()->count(3)->create(['is_active' => false]);
-        Product::factory()->count(3)->create(['is_active' => true]);
+        $products = Product::factory()->count(3)->create(['is_active' => false]);
+        $activeProduct = Product::factory()->count(3)->create(['is_active' => true]);
 
+        foreach ($products as $product) {
+            ProductVariant::factory()->count(4)->create(['product_id' => $product->id]);
+        }
+        foreach ($activeProduct as $product) {
+            ProductVariant::factory()->count(4)->create(['product_id' => $product->id]);
+        }
         $allProducts = $this->productService->allWithTrashed();
+
         $this->assertEquals($allProducts->count(), 6);
+        $this->assertTrue(
+            $allProducts->every(fn($product) => $product->variants->count() > 0)
+        );
         $this->assertInstanceOf(Product::class, $allProducts[0]);
     }
     public function test_product_service_find_product(): void
     {
         $product = Product::factory()->create([...$this->productData, 'is_active' => true]);
+        ProductVariant::factory()->create(['product_id' => $product->id]);
         $foundProduct = $this->productService->find($product->id);
         $this->assertEquals($foundProduct->id, $product->id);
     }

@@ -33,14 +33,14 @@ class Product extends Model
         return $this->hasManyThrough(
             Order::class,
             OrderItem::class,
-            "product_variant_id",
-            "id",
-            "id",
-            "order_id"
+            'product_variant_id',
+            'id',
+            'id',
+            'order_id'
         )->whereIn('product_variant_id', function ($query) {
             $query->select('id')
                 ->from('product_variants')
-                ->whereColumn('product_variants.product_id', 'products.id');
+                ->where('product_variants.product_id', $this->id);
         });
     }
 }
