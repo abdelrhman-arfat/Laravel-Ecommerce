@@ -19,7 +19,7 @@ class UserApiTest extends TestCase
 
     }
 
-    public function test_get_all_users(): void
+    public function test_user_api_get_all_users(): void
     {
         User::factory()->count(3)->create();
 
@@ -41,7 +41,7 @@ class UserApiTest extends TestCase
         ]);
     }
 
-    public function test_get_user_by_id(): void
+    public function test_user_api_get_user_by_id(): void
     {
         $user = User::factory()->create();
 
@@ -67,7 +67,7 @@ class UserApiTest extends TestCase
         ]);
     }
 
-    public function test_get_user_by_email(): void
+    public function test_user_api_get_user_by_email(): void
     {
         $user = User::factory()->create();
 
@@ -85,7 +85,7 @@ class UserApiTest extends TestCase
         ]);
     }
 
-    public function test_verify_user(): void
+    public function test_user_api_verify_user(): void
     {
         $user = User::factory()->create([
             'email_verified_at' => null,
