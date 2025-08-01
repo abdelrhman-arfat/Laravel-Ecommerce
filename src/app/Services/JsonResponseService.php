@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\DataOfPaginate;
 use Illuminate\Http\JsonResponse;
 
 class JsonResponseService
@@ -14,6 +15,26 @@ class JsonResponseService
     return response()->json([
       'status' => 'success',
       'data' => $data,
+      'message' => $message,
+    ], $code);
+  }
+
+  public static function successResponseForPagination($d, int $code = 200, string $message = '')
+  {
+
+    $data  = $d->items();
+    $current_page = $d->currentPage();
+    $last_page = $d->lastPage();
+    $per_page = $d->perPage();
+    $total = $d->total();
+
+    return response()->json([
+      'status' => 'success',
+      'data' => $data,
+      'current_page' => $current_page,
+      'last_page' => $last_page,
+      'per_page' => $per_page,
+      'total' => $total,
       'message' => $message,
     ], $code);
   }

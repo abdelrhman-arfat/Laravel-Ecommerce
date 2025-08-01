@@ -4,7 +4,10 @@ namespace Tests\Feature;
 
 use App\Http\Middleware\AdminMiddleWare;
 use App\Http\Middleware\JwtMiddleware;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -33,11 +36,69 @@ class ProductApiTest extends TestCase
             ->assertJsonStructure([
                 'status',
                 'data' => [
-                    '*' => ['id', 'name', 'description', 'price']
+                    '*' => ['is_active', 'id', 'name', 'description', 'price']
                 ],
-                'message'
+                'current_page',
+                'last_page',
+                'per_page',
+                'total',
+                'message',
             ]);
     }
+
+    public function test_product_api_trashed_active_products()
+    {
+        $activeProducts = Product::factory()->count(4)->create(['is_active' => true]);
+        $trashedProducts = Product::factory()->count(4)->create(['is_active' => false]);
+
+        $response = $this->withoutMiddleware([
+            JwtMiddleware::class,
+            AdminMiddleWare::class,
+        ])->get("/api/products/trashed");
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            "message",
+            'data' => [
+                '*' => ['is_active', 'id', 'name', 'description', 'price']
+            ],
+            "last_page",
+        ]);
+    }
+
+    public function test_product_get_products_orders()
+    {
+        $product = Product::factory()->create();
+        $productVariant = ProductVariant::factory()->create([
+            "product_id" => $product->id
+        ]);
+
+        $order = Order::factory()->create();
+        $orderItem = OrderItem::factory()->create([
+            "order_id" => $order->id,
+            "product_variant_id" => $productVariant->id
+        ]);
+
+        $response = $this->withoutMiddleware([
+            JwtMiddleware::class,
+            AdminMiddleWare::class,
+        ])->get("/api/products/orders/{$product->id}");
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'status',
+            'data' => [
+                '*' => [
+                    'id',
+                    'user_id',
+                    'total_price',
+                    'created_at',
+                    'updated_at',
+                ]
+            ],
+            'message'
+        ]);
+    }
+
     public function test_product_api_single_product()
     {
         $product = Product::factory()->create();
@@ -45,7 +106,7 @@ class ProductApiTest extends TestCase
         $response = $this->withoutMiddleware([
             JwtMiddleware::class,
             AdminMiddleWare::class,
-        ])->get("/api/products/{$product->id}");
+        ])->get("/api/products/by-id/{$product->id}");
 
         $response->assertStatus(200)
             ->assertJson([
@@ -59,10 +120,28 @@ class ProductApiTest extends TestCase
 
     public function test_product_api_create_product()
     {
+        $variants = [
+            [
+                'size' => 'S',
+                'color' => 'red',
+                'quantity' => 10
+            ],
+            [
+                'size' => 'M',
+                'color' => 'blue',
+                'quantity' => 20
+            ],
+            [
+                'size' => 'L',
+                'color' => 'green',
+                'quantity' => 30
+            ]
+        ];
         $data = [
             'name' => 'Test Product',
             'description' => 'Test Description',
             'price' => 100,
+            "variants" => $variants
         ];
         $response = $this->withoutMiddleware(
             [
@@ -76,7 +155,15 @@ class ProductApiTest extends TestCase
                 'name' => 'Test Product'
             ]);
 
-        $this->assertDatabaseHas('products', $data);
+        $this->assertDatabaseHas('products', [
+            'name' => 'Test Product',
+            'description' => 'Test Description',
+            'price' => 100
+        ]);
+
+        foreach ($variants as $variant) {
+            $this->assertDatabaseHas('product_variants', $variant);
+        }
     }
 
     public function test_product_api_update_product()
@@ -114,6 +201,8 @@ class ProductApiTest extends TestCase
         $response->assertStatus(200);
         $this->assertSoftDeleted('products', ['id' => $product->id]);
     }
+
+
     public function test_product_api_restore_product()
     {
         $product = Product::factory()->create(['is_active' => false]);
