@@ -17,7 +17,8 @@ class ProductService implements ProductInterface
 
   public function trashed($limit = 10)
   {
-    return Product::with('variants')->where('is_active', false)
+    return Product::with('variants')
+      ->where('is_active', false)
       ->paginate($limit);
   }
 
