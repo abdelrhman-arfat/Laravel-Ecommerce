@@ -32,17 +32,19 @@ class ProductApiTest extends TestCase
             AdminMiddleWare::class,
         ])->get('/api/products');
 
+
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'status',
                 'data' => [
                     '*' => ['is_active', 'id', 'name', 'description', 'price']
                 ],
-                'current_page',
-                'last_page',
-                'per_page',
-                'total',
-                'message',
+                'meta' => [
+                    'current_page',
+                    'last_page',
+                    'total',
+                    'per_page',
+                ]
             ]);
     }
 
@@ -56,14 +58,19 @@ class ProductApiTest extends TestCase
             AdminMiddleWare::class,
         ])->get("/api/products/trashed");
 
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            "message",
-            'data' => [
-                '*' => ['is_active', 'id', 'name', 'description', 'price']
-            ],
-            "last_page",
-        ]);
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'status',
+                'data' => [
+                    '*' => ['is_active', 'id', 'name', 'description', 'price']
+                ],
+                'meta' => [
+                    'current_page',
+                    'last_page',
+                    'total',
+                    'per_page',
+                ]
+            ]);
     }
 
     public function test_product_get_products_orders()
