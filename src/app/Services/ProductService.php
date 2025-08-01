@@ -8,21 +8,26 @@ use App\Services\Interfaces\ProductInterface;
 class ProductService implements ProductInterface
 {
 
-  public function all()
+  public function all($limit = 10)
   {
-    return Product::where('is_active', true)->get();
+    return Product::with('variants')
+      ->where('is_active', true)
+      ->paginate($limit);
   }
-  public function trashed()
+
+  public function trashed($limit = 10)
   {
-    return Product::where('is_active', false)->get();
+    return Product::with('variants')->where('is_active', false)
+      ->paginate($limit);
   }
-  public function allWithTrashed()
+
+  public function allWithTrashed($limit = 10)
   {
-    return Product::all();
+    return Product::with('variants')->paginate($limit);
   }
   public function find($id)
   {
-    return Product::find($id);
+    return Product::with('variants')->find($id);
   }
   public function create(array $data)
   {

@@ -20,7 +20,7 @@ Route::get("/verify-email/{id}/{hash}", [VerificationController::class, 'verify'
 
 // products (accessible for all authenticated users)
 Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
+Route::get('/products/by-id/{id}', [ProductController::class, 'show']);
 
 //------------------------------ With Middleware -------------------------------
 
@@ -28,9 +28,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
   // auth
   Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-  // products (accessible for all authenticated users)
-  Route::get('/products', [ProductController::class, 'index']);
-  Route::get('/products/{id}', [ProductController::class, 'show']);
+
 
   // admin-only routes
   Route::middleware(AdminMiddleWare::class)->group(function () {
@@ -41,9 +39,12 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('/users/{id}/verify', [UserController::class, 'verifyUser']);
 
     // products
+    Route::get("/products/trashed", [ProductController::class, 'trashed']);
+    Route::get("/products/all", [ProductController::class, 'allWithTrashed']);
+    Route::get("/products/orders/{id}", [ProductController::class, "orders"]);
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{id}', [ProductController::class, 'update']);
-    Route::put("/products/{id}/restore", [ProductController::class, 'restore']);
-    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+    Route::put("/products/{id}/restore", [ProductController::class, 'restore']); // restore soft-deleted product
+    Route::delete('/products/{id}', [ProductController::class, 'destroy']); // soft-delete product
   });
 });
