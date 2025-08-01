@@ -4,49 +4,57 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Services\Interfaces\ProductInterface;
+use App\Services\Interfaces\ProductVariantInterface;
 use App\Services\JsonResponseService;
 
 class ProductController extends Controller
 {
     protected ProductInterface $productService;
+    protected ProductVariantInterface $productVariantService;
 
-    public function __construct(ProductInterface $productService)
+    public function __construct(ProductInterface $productService, ProductVariantInterface $productVariantService)
     {
         $this->productService = $productService;
+        $this->productVariantService = $productVariantService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $products = $this->productService->all();
-            return JsonResponseService::successResponse($products, 200, 'Active products retrieved');
+            $limit = $request->query('limit', 10);
+
+            $products = $this->productService->all($limit);
+            return JsonResponseService::successResponseForPagination($products, 200, 'Trashed products retrieved');
         } catch (\Exception $e) {
             return JsonResponseService::errorResponse(500, $e->getMessage());
         }
     }
 
-    public function trashed()
+    public function trashed(Request $request)
     {
         try {
-            $products = $this->productService->trashed();
-            return JsonResponseService::successResponse($products, 200, 'Trashed products retrieved');
+            $limit = $request->query('limit', 10);
+
+            $products = $this->productService->trashed($limit);
+            return JsonResponseService::successResponseForPagination($products, 200, 'Trashed products retrieved');
         } catch (\Exception $e) {
             return JsonResponseService::errorResponse(500, $e->getMessage());
         }
     }
 
-    public function allWithTrashed()
+    public function allWithTrashed(Request $request)
     {
         try {
-            $products = $this->productService->allWithTrashed();
-            return JsonResponseService::successResponse($products, 200, 'All products (with trashed) retrieved');
+            $limit = $request->query('limit', 10);
+            $products = $this->productService->allWithTrashed($limit);
+            return JsonResponseService::successResponseForPagination($products, 200, 'Trashed products retrieved');
         } catch (\Exception $e) {
             return JsonResponseService::errorResponse(500, $e->getMessage());
         }
     }
+
 
     public function show($id)
     {
@@ -64,7 +72,20 @@ class ProductController extends Controller
     public function store(CreateProductRequest $request)
     {
         try {
-            $product = $this->productService->create($request->validated());
+            $validatedData = $request->validated();
+
+            $product = $this->productService->create([
+                'name'        => $validatedData['name'],
+                'description' => $validatedData['description'] ?? null,
+                'price'       => $validatedData['price'],
+            ]);
+
+            foreach ($validatedData['variants'] as $variantData) {
+                $variantData['product_id'] = $product->id;
+                $this->productVariantService->create($variantData);
+            }
+
+
             return JsonResponseService::successResponse($product, 201, 'Product created');
         } catch (\Exception $e) {
             return JsonResponseService::errorResponse(500, $e->getMessage());
