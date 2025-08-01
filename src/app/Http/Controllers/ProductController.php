@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use App\Services\Interfaces\ProductInterface;
 use App\Services\Interfaces\ProductVariantInterface;
 use App\Services\JsonResponseService;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
 {
@@ -39,6 +38,28 @@ class ProductController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/products/trashed",
+     *     tags={"Products"},
+     *     summary="Get trashed products",
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of trashed products"
+     *     )
+     * )         
+     */
     public function trashed(Request $request)
     {
         try {
