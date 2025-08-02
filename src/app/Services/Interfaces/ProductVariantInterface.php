@@ -12,5 +12,6 @@ interface ProductVariantInterface
   public function update(ProductVariant $product, array $data);
   public function restore(ProductVariant $product);
   public function delete(ProductVariant $product);
+  public function isDuplicate(array $data);
   public function decreaseQuantity(ProductVariant $product, $quantity);
 }

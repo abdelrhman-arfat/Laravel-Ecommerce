@@ -29,6 +29,13 @@ class ProductVariantService implements ProductVariantInterface
     $product->save();
     return $product;
   }
+  public function isDuplicate(array $data)
+  {
+    return ProductVariant::where('product_id', $data['product_id'])
+      ->where('color', $data['color'])
+      ->where('size', $data['size'])
+      ->exists();
+  }
   public function restore(ProductVariant $product)
   {
     $product->is_active = true;

@@ -109,4 +109,34 @@ class ProductVariantServiceTest extends TestCase
         $this->assertCount(3, $variants);
         $this->assertInstanceOf(ProductVariant::class, $variants[0]);
     }
+
+    public function test_product_variant_service_check_if_variant_exists(): void
+    {
+        $isDuplicate = $this->productVariantService->isDuplicate($this->productVariantData);
+        $this->assertFalse($isDuplicate);
+
+        ProductVariant::factory()->create($this->productVariantData);
+
+        $isDuplicate = $this->productVariantService->isDuplicate($this->productVariantData);
+        $this->assertTrue($isDuplicate);
+
+        $isDuplicate = $this->productVariantService->isDuplicate([
+            ...$this->productVariantData,
+            'color' => ConstantEnums::colors()['blue'],
+        ]);
+        $this->assertFalse($isDuplicate);
+
+        $isDuplicate = $this->productVariantService->isDuplicate([
+            ...$this->productVariantData,
+            'size' => ConstantEnums::sizes()['L'],
+        ]);
+        $this->assertFalse($isDuplicate);
+
+        $isDuplicate = $this->productVariantService->isDuplicate([
+            ...$this->productVariantData,
+            'size' => ConstantEnums::sizes()['L'],
+            'color' => ConstantEnums::colors()['blue'],
+        ]);
+        $this->assertFalse($isDuplicate);
+    }
 }
