@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductVariantController;
 use App\Http\Middleware\AdminMiddleWare;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -28,8 +29,6 @@ Route::middleware([JwtMiddleware::class])->group(function () {
   // auth
   Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-
-
   // admin-only routes
   Route::middleware(AdminMiddleWare::class)->group(function () {
     // users
@@ -46,5 +45,11 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::put("/products/{id}/restore", [ProductController::class, 'restore']); // restore soft-deleted product
     Route::delete('/products/{id}', [ProductController::class, 'destroy']); // soft-delete product
+
+    // product variants
+    Route::post('/variants', [ProductVariantController::class, 'store']);
+    Route::put('/variants/{id}', [ProductVariantController::class, 'update']);
+    Route::put('/variants/{id}/restore', [ProductVariantController::class, 'restore']);
+    Route::delete('/variants/{id}', [ProductVariantController::class, 'destroy']);
   });
 });
