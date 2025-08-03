@@ -13,9 +13,9 @@ class ProductVariant extends Model
     protected $fillable = ['product_id', 'color', 'size', 'quantity', 'is_active'];
     protected $hidden = ['created_at', 'updated_at'];
 
+
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
-    
 }

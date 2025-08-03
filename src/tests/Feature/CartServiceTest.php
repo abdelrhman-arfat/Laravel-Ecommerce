@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Cart;
+use App\Models\Product;
 use App\Models\User;
 use App\Models\ProductVariant;
 use App\Services\CartService;
@@ -23,9 +24,14 @@ class CartServiceTest extends TestCase
 
     public function test_cart_service_find()
     {
-        $cart = Cart::factory()->create();
+        $user  = User::factory()->create();
+        $cart = Cart::factory()->create(
+            [
+                'user_id' => $user->id
+            ]
+        );
 
-        $found = $this->cartService->find($cart->id);
+        $found = $this->cartService->find($user->id, $cart->id);
 
         $this->assertNotNull($found);
         $this->assertEquals($cart->id, $found->id);
@@ -61,24 +67,43 @@ class CartServiceTest extends TestCase
 
     public function test_cart_service_delete()
     {
-        $cart = Cart::factory()->create();
-
-        $deleted = $this->cartService->delete($cart->id);
+        $user = User::factory()->create();
+        /** @var \App\Models\User $user */
+        $this->actingAs($user);
+        $cart = Cart::factory()->create([
+            'user_id' => $user->id
+        ]);
+        $deleted = $this->cartService->delete($user->id, $cart->id);
 
         $this->assertEquals(1, $deleted); // should return number of deleted rows
         $this->assertDatabaseMissing('carts', ['id' => $cart->id]);
     }
-
     public function test_cart_service_get_for_user_by_user_id()
     {
         $user = User::factory()->create();
-        $carts = Cart::factory()->count(3)->create(['user_id' => $user->id]);
+
+        $product = Product::factory()->create();
+        $variants = ProductVariant::factory()->count(3)->create([
+            'product_id' => $product->id
+        ]);
+
+        foreach ($variants as $variant) {
+            Cart::factory()->create([
+                'user_id' => $user->id,
+                'product_variant_id' => $variant->id,
+            ]);
+        }
 
         $result = $this->cartService->getForUserByUserId($user->id);
 
         $this->assertCount(3, $result);
-        $this->assertEquals($carts->pluck('id')->sort()->values(), $result->pluck('id')->sort()->values());
+
+        foreach ($result as $cart) {
+            $this->assertNotNull($cart->productVariant);
+            $this->assertNotNull($cart->productVariant->product);
+        }
     }
+
 
     public function test_cart_service_get_for_user_by_product_variant_id_and_user_id()
     {

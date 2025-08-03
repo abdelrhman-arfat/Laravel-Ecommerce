@@ -19,7 +19,6 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
-
     /**
      * ProductVariant has product_id
      * OrderItem has product_variant_id

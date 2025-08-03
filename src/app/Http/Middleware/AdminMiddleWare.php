@@ -18,8 +18,7 @@ class AdminMiddleWare
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            $user = auth()->user();
-            if (!$user) $user = $request->user();
+            $user = $request->user();
             if ($user->role != 'admin') return JsonResponseService::errorResponse(401, "You aren't admin");
         } catch (Exception $e) {
             return JsonResponseService::errorResponse(401, $e->getMessage());

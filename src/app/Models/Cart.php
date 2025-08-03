@@ -18,9 +18,27 @@ class Cart extends Model
         'price',
     ];
 
+    protected $hidden = [
+        "created_at",
+        "updated_at",
+    ];
+
     public function productVariant()
     {
         return $this->belongsTo(ProductVariant::class);
+    }
+
+
+    public function product()
+    {
+        return $this->hasOneThrough(
+            Product::class,
+            ProductVariant::class,
+            "product_id",
+            "id",
+            "product_variant_id",
+            "id",
+        );
     }
 
     public function user()

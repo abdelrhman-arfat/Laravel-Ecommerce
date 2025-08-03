@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ProductController;
@@ -28,6 +29,12 @@ Route::get('/products/by-id/{id}', [ProductController::class, 'show']);
 Route::middleware([JwtMiddleware::class])->group(function () {
   // auth
   Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+  // cart
+  Route::get('/carts', [CartController::class, 'index']);
+  Route::post('/carts', [CartController::class, 'store']);
+  Route::delete('/carts/{id}', [CartController::class, 'destroy']);
+  Route::put('/carts/{id}', [CartController::class, 'update']);
 
   // admin-only routes
   Route::middleware(AdminMiddleWare::class)->group(function () {

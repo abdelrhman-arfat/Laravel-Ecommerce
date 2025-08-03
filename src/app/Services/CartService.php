@@ -7,9 +7,9 @@ use App\Services\Interfaces\CartInterface;
 
 class CartService implements CartInterface
 {
-  public function find($id)
+  public function find($userId, $cartId)
   {
-    return Cart::find($id);
+    return Cart::where('id', $cartId)->where('user_id', $userId)->first();
   }
 
   public function create(array $data)
@@ -20,16 +20,19 @@ class CartService implements CartInterface
   public function update(Cart $cart, array $data)
   {
     $cart->update($data);
+    $cart->setRelation('product', null);
+    $cart->setRelation('product_variant', null);
+
     return $cart;
   }
 
-  public function delete($id)
+  public function delete($userId, $cartId)
   {
-    return Cart::where('id', $id)->delete(); 
+    return Cart::where('id', $cartId)->where('user_id', $userId)->delete();
   }
   public function getForUserByUserId($userId)
   {
-    return Cart::where('user_id', $userId)->get();
+    return Cart::with('productVariant.product')->where('user_id', $userId)->get();
   }
 
   public function getForUserByProductVariantIdAndUserId($userId, $productVariantId)
