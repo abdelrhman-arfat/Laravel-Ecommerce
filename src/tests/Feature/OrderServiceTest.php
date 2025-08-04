@@ -73,6 +73,16 @@ class OrderServiceTest extends TestCase
 
         $this->assertEquals($order->id, $found->id);
     }
+    public function test_order_service_find_by_user_id_order_by_id(): void
+    {
+        $user = User::factory()->create();
+        $order = Order::factory()->create([
+            "user_id" => $user->id
+        ]);
+        $found = $this->orderService->findByUserIdAndOrderId($user->id, $order->id);
+
+        $this->assertEquals($order->id, $found->id);
+    }
 
     public function test_order_service_update_status(): void
     {

@@ -53,9 +53,10 @@ class PaymentApiTest extends TestCase
         ]);
 
 
-        $response->assertJson([
-            "message" => "P"
+        $response->assertStatus(201);
+        $response->assertJsonStructure([
+            'data'
         ]);
-
+        $this->assertTrue(filter_var($response['data'], FILTER_VALIDATE_URL) !== false);
     }
 }
