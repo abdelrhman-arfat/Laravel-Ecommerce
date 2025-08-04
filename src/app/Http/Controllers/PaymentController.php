@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\BuildMetaData;
+use App\Helpers\MerchantHelper;
 use App\Http\Requests\CreatePaymentRequest;
 use App\Services\Interfaces\OrderInterface;
 use App\Services\Interfaces\OrderItemInterface;
@@ -67,7 +68,7 @@ class PaymentController extends Controller
         $merchant_order_id = explode('.', $rawEncodedMetadata)[0] ?? null;
         if (!$merchant_order_id) return JsonResponseService::errorResponse(400, "Invalid merchant_order_id format");
 
-        $metadata = json_decode(base64_decode($merchant_order_id), true);
+        $metadata = MerchantHelper::decoded($merchant_order_id);
         if (!$metadata || !isset($metadata['user_id'], $metadata['variants']) || !isset($metadata['total_price'])) {
             return JsonResponseService::errorResponse(400, "Invalid merchant_order_id format");
         }
