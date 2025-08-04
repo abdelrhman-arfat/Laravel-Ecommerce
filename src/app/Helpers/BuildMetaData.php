@@ -6,7 +6,7 @@ class BuildMetaData
 {
   public static function build($user, $variants, $totalPrice)
   {
-    [
+    return [
       'user_id' => $user->id,
       'variants' => array_map(function ($variant) {
         return [

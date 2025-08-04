@@ -10,6 +10,8 @@ use Tests\TestCase;
 
 namespace Tests\Feature;
 
+use App\Helpers\BuildMetaData;
+use App\Helpers\MerchantHelper;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -58,5 +60,76 @@ class PaymentApiTest extends TestCase
             'data'
         ]);
         $this->assertTrue(filter_var($response['data'], FILTER_VALIDATE_URL) !== false);
+    }
+    public function test_payment_api_create_new_payment_url_with_paymob_fail_quantity(): void
+    {
+        $this->withoutMiddleware([JwtMiddleware::class]);
+
+        /** @var \App\Models\User $user */
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $product = Product::factory()->create();
+        $variant1 = ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            "quantity" => 1
+        ]);
+
+
+        $response = $this->post('/api/paymob', [
+            'variants' => [
+                [
+                    'product_variant_id' => $variant1->id,
+                    'quantity' => 3
+                ],
+
+            ]
+        ]);
+
+        $response->assertStatus(400);
+    }
+    public function test_payment_api_create_new_payment_url_with_paymob_fail_variant(): void
+    {
+        $this->withoutMiddleware([JwtMiddleware::class]);
+
+        /** @var \App\Models\User $user */
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+
+
+        $response = $this->post('/api/paymob', [
+            'variants' => [
+                [
+                    'product_variant_id' =>  3,
+                    'quantity' => 3
+                ],
+
+            ]
+        ]);
+
+        $response->assertStatus(400);
+    }
+    public function test_payment_api_create_new_payment_url_with_paymob_callback_success(): void
+    {
+        $this->withoutMiddleware([JwtMiddleware::class]);
+
+        /** @var \App\Models\User $user */
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $product = Product::factory()->create();
+        $v = ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            "quantity" => 3
+        ]);
+        $v->requested_quantity = 2;
+        $v->price = $product->price;
+        $metadata = BuildMetaData::build($user, [$v], $product->price);
+        $merchant_order_id = MerchantHelper::encoded($metadata);
+
+        $response = $this->get('/api/paymob/callback?merchant_order_id=' . $merchant_order_id);
+
+        $response->assertStatus(200);
     }
 }
