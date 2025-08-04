@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ProductController;
@@ -24,6 +26,8 @@ Route::get("/verify-email/{id}/{hash}", [VerificationController::class, 'verify'
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/by-id/{id}', [ProductController::class, 'show']);
 
+Route::get('/paymob/callback', [PaymentController::class, 'callback']);
+
 //------------------------------ With Middleware -------------------------------
 
 Route::middleware([JwtMiddleware::class])->group(function () {
@@ -35,6 +39,10 @@ Route::middleware([JwtMiddleware::class])->group(function () {
   Route::post('/carts', [CartController::class, 'store']);
   Route::delete('/carts/{id}', [CartController::class, 'destroy']);
   Route::put('/carts/{id}', [CartController::class, 'update']);
+
+  // orders
+  Route::post('/paymob', [PaymentController::class, 'store']);
+  Route::get('/paymob/callback', [PaymentController::class, 'callback']);
 
   // admin-only routes
   Route::middleware(AdminMiddleWare::class)->group(function () {
