@@ -18,6 +18,8 @@ use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Http\Middleware\JwtMiddleware;
+use App\Models\Order;
+use App\Models\Payment;
 
 class PaymentApiTest extends TestCase
 {
@@ -131,5 +133,9 @@ class PaymentApiTest extends TestCase
         $response = $this->get('/api/paymob/callback?merchant_order_id=' . $merchant_order_id);
 
         $response->assertStatus(200);
+
+        $order = Order::where("user_id", $user->id)->first();
+        $this->assertNotNull($order);
+        $this->assertEquals($order->status, "pending");
     }
 }
