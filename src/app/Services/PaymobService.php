@@ -8,6 +8,8 @@ class PaymobService
 {
   protected $apiKey;
   protected $integrationId;
+
+  // if you want to use another way u can change it with a class to get the iframe id 
   protected $iframeId;
   protected $baseUrl;
   public function __construct()
