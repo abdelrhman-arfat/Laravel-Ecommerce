@@ -11,9 +11,17 @@ class OrderService implements OrderInterface
   {
     return Order::all();
   }
-  public function find($id)
+  public function find(int $id)
   {
     return Order::find($id);
+  }
+  public function findByUserIdAndOrderId(int $userID, int $orderId)
+  {
+    return Order::with("orderItems")->where("user_id", $userID)->where("id", $orderId)->first();
+  }
+  public function findByUserId(int $userID)
+  {
+    return Order::with("orderItems.productVariant.product")->where("user_id", $userID)->get();
   }
   public function create(array $data)
   {

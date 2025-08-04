@@ -46,8 +46,7 @@ class SignInApiTest extends TestCase
             'password' => '12345678'
         ]);
 
-        $response->assertStatus(401);
-        $response->assertJson(['data' => null, 'message' => 'Invalid credentials']);
+        $response->assertStatus(400);
     }
     public function test_auth_signin_bad_request_password(): void
     {
@@ -56,6 +55,29 @@ class SignInApiTest extends TestCase
         $response = $this->post('/api/auth/signin', [
             'email' => 'a@b.com',
             'password' => '1234567'
+        ]);
+
+        $response->assertStatus(400);
+    }
+    public function test_auth_signin_invalid_password(): void
+    {
+        User::factory()->create(['email' => 'a@b.com', 'password' => Hash::make('123456789')]);
+
+        $response = $this->post('/api/auth/signin', [
+            'email' => 'a@b.com',
+            'password' => '12345678'
+        ]);
+
+        $response->assertStatus(401);
+        $response->assertJson(['data' => null, 'message' => 'Invalid credentials']);
+    }
+    public function test_auth_signin_invalid_email(): void
+    {
+        User::factory()->create(['email' => 'a@bb.com', 'password' => Hash::make('12345678')]);
+
+        $response = $this->post('/api/auth/signin', [
+            'email' => 'a@b.com',
+            'password' => '12345678'
         ]);
 
         $response->assertStatus(401);

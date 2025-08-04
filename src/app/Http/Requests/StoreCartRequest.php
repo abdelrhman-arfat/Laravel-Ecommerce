@@ -38,7 +38,7 @@ class StoreCartRequest extends FormRequest
     }
     public function getProductVariant()
     {
-        return $this->productVariantRule->variant;
+        return $this->productVariantRule->getVariants()[0];
     }
 
 

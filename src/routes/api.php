@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ProductController;
@@ -24,6 +26,8 @@ Route::get("/verify-email/{id}/{hash}", [VerificationController::class, 'verify'
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/by-id/{id}', [ProductController::class, 'show']);
 
+Route::get('/paymob/callback', [PaymentController::class, 'callback']);
+
 //------------------------------ With Middleware -------------------------------
 
 Route::middleware([JwtMiddleware::class])->group(function () {
@@ -35,6 +39,15 @@ Route::middleware([JwtMiddleware::class])->group(function () {
   Route::post('/carts', [CartController::class, 'store']);
   Route::delete('/carts/{id}', [CartController::class, 'destroy']);
   Route::put('/carts/{id}', [CartController::class, 'update']);
+
+  // payment for the orders
+  Route::post('/paymob', [PaymentController::class, 'store']);
+  Route::get('/paymob/callback', [PaymentController::class, 'callback']);
+
+  //orders
+  Route::get('/orders', [OrderController::class, 'getMyOrders']);
+  Route::get('/orders/by-id/{id}', [OrderController::class, 'show']);
+  // Route::delete('/orders/{id}', [OrderController::class, 'cancel']); // this will return the money to the user again
 
   // admin-only routes
   Route::middleware(AdminMiddleWare::class)->group(function () {
@@ -58,5 +71,12 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::put('/variants/{id}', [ProductVariantController::class, 'update']);
     Route::put('/variants/{id}/restore', [ProductVariantController::class, 'restore']);
     Route::delete('/variants/{id}', [ProductVariantController::class, 'destroy']);
+
+    // orders
+    Route::get("/orders/admin/by-email", [OrderController::class, 'searchByEmail']); // ?email=...
+    Route::get("/orders/admin/by-status", [OrderController::class, 'searchByStatus']); //?status=...
+    Route::get('/orders/admin', [OrderController::class, 'index']);
+    Route::get('/orders/admin/{id}', [OrderController::class, 'showFromAdmin']);
+    Route::put('/orders/admin/update-status', [OrderController::class, 'update']);
   });
 });

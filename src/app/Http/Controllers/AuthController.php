@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SignInUserRequest;
 use App\Http\Requests\SignUpUserRequest;
 use App\Notifications\WelcomeEmail;
 use App\Services\Interfaces\UserServiceInterface;
@@ -59,7 +60,7 @@ class AuthController extends Controller
             return JsonResponseService::errorResponse(500, $e->getMessage());
         }
     }
-    public function signin(Request $request)
+    public function signin(SignInUserRequest $request)
     {
         try {
 
@@ -107,7 +108,7 @@ class AuthController extends Controller
         try {
             $refreshToken = $request->cookie('refresh_token');
             $accessToken = $request->cookie('token');
-  
+
             if ($refreshToken) {
                 JwtService::invalidateTokenInCookie($refreshToken);
             }
