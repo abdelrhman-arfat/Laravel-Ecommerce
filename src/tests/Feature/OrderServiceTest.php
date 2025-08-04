@@ -56,6 +56,16 @@ class OrderServiceTest extends TestCase
         $this->assertCount(3, $orders);
     }
 
+    public function test_order_service_find_user_orders(): void
+    {
+        $user = User::factory()->create();
+        Order::factory()->count(4)->create(['user_id' => $user->id]);
+
+        $orders = $this->orderService->findByUserId($user->id);
+
+        $this->assertCount(4, $orders);
+    }
+
     public function test_order_service_find_order_by_id(): void
     {
         $order = Order::factory()->create();

@@ -11,9 +11,13 @@ class OrderService implements OrderInterface
   {
     return Order::all();
   }
-  public function find($id)
+  public function find(int $id)
   {
     return Order::find($id);
+  }
+  public function findByUserId(int $userID)
+  {
+    return Order::where("user_id", $userID)->get();
   }
   public function create(array $data)
   {
